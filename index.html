@@ -1,0 +1,715 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kart&Co | Kirana Marketplace</title>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;1,700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #f5f2eb;
+            --accent: #ff5722;
+            --dark: #1a1a1a;
+            --white: #ffffff;
+            --red-card: #b71c1c;
+        }
+
+        /* --- SNAP SCROLL CORE --- */
+        html, body { margin: 0; padding: 0; height: 100%; overflow: hidden; }
+
+        .scroll-container {
+            height: 100vh;
+            overflow-y: scroll;
+            scroll-snap-type: y mandatory;
+            scroll-behavior: smooth;
+        }
+
+        section {
+            height: 100vh;
+            width: 100%;
+            scroll-snap-align: start;
+            scroll-snap-stop: always;
+            padding: 80px 20px 40px 20px;
+            box-sizing: border-box;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            
+            /* ANIMATION: Fade in on scroll */
+            opacity: 0;
+            transform: translateY(20px);
+            transition: opacity 0.8s ease-out, transform 0.8s ease-out;
+            will-change: opacity, transform;
+        }
+
+        section.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* Hide scrollbar for Chrome, Safari and Opera */
+        .scroll-container::-webkit-scrollbar { display: none; }
+        .scroll-container { -ms-overflow-style: none; scrollbar-width: none; }
+
+        /* --- UI COMPONENTS --- */
+        nav {
+            position: fixed; top: 0; width: 100%; height: 70px;
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 0 20px; background: rgba(245, 242, 235, 0.9);
+            z-index: 1000; backdrop-filter: blur(10px);
+        }
+        .logo { 
+            font-family: 'Playfair Display', serif; 
+            font-size: 24px; 
+            font-weight: bold; 
+            cursor: pointer;
+            transition: transform 0.3s ease;
+        }
+        .logo:hover { transform: scale(1.05); }
+        .logo span { background: var(--dark); color: white; padding: 2px 8px; border-radius: 4px; }
+        .menu-dots { 
+            cursor: pointer; 
+            font-size: 28px; 
+            padding: 5px;
+            transition: transform 0.3s ease;
+        }
+        .menu-dots:hover { transform: rotate(90deg); }
+
+        .badge { 
+            background: white; 
+            padding: 5px 12px; 
+            border-radius: 20px; 
+            font-size: 11px; 
+            text-transform: uppercase; 
+            border: 1px solid #ddd; 
+            margin-bottom: 15px; 
+            display: inline-block;
+            opacity: 0;
+            transform: translateX(-20px);
+            transition: opacity 0.6s ease 0.2s, transform 0.6s ease 0.2s;
+        }
+        .visible .badge { opacity: 1; transform: translateX(0); }
+
+        .btn-main { 
+            background: var(--dark); 
+            color: white; 
+            padding: 16px 32px; 
+            border-radius: 30px; 
+            border: none; 
+            font-weight: 600; 
+            cursor: pointer; 
+            transition: all 0.3s ease;
+            text-decoration: none; 
+            display: inline-block;
+            opacity: 0;
+            transform: translateY(20px);
+            transition: opacity 0.6s ease 0.4s, transform 0.6s ease 0.4s, box-shadow 0.3s ease;
+        }
+        .btn-main:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(26,26,26,0.3);
+        }
+        .visible .btn-main { opacity: 1; transform: translateY(0); }
+
+        .btn-outline { 
+            background: transparent; 
+            border: 1px solid var(--dark); 
+            padding: 15px 30px; 
+            border-radius: 30px; 
+            font-weight: 600; 
+            margin-top: 10px; 
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        .btn-outline:hover {
+            background: var(--dark);
+            color: white;
+            transform: translateY(-2px);
+        }
+
+        /* --- PAGE 1: HOME --- */
+        #home { background: var(--bg); justify-content: center; }
+        h1 { 
+            font-family: 'Playfair Display', serif; 
+            font-size: 42px; 
+            line-height: 1.1; 
+            margin-bottom: 20px;
+            opacity: 0;
+            transform: translateY(30px);
+            transition: opacity 0.8s ease 0.1s, transform 0.8s ease 0.1s;
+        }
+        .visible h1 { opacity: 1; transform: translateY(0); }
+        h1 span { color: var(--accent); font-style: italic; }
+        #home p { opacity: 0; transform: translateY(20px); transition: opacity 0.6s ease 0.5s, transform 0.6s ease 0.5s; }
+        .visible #home p { opacity: 1; transform: translateY(0); }
+
+        .hero-card { 
+            background: var(--red-card); 
+            border-radius: 30px; 
+            padding: 30px; 
+            color: white; 
+            margin-top: 30px;
+            animation: fallIn 0.8s ease-out 0.8s forwards;
+            opacity: 0;
+            transform: translateY(40px);
+            box-shadow: 0 20px 40px rgba(183,28,28,0.3);
+        }
+        .hero-card img { 
+            width: 100%; 
+            height: 200px; 
+            object-fit: contain; 
+            border-radius: 20px;
+            transition: transform 0.5s ease;
+        }
+        .hero-card:hover img { transform: scale(1.05); }
+        @keyframes fallIn {
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* --- PAGE 2: STORE --- */
+        #store { background: #fff; }
+        .search-bar { 
+            width: 100%; 
+            padding: 15px; 
+            border-radius: 12px; 
+            border: 1px solid #eee; 
+            margin-bottom: 15px; 
+            background: #f9f9f9;
+            transition: box-shadow 0.3s ease, transform 0.3s ease;
+        }
+        .search-bar:focus {
+            box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+            transform: translateY(-2px);
+            outline: none;
+        }
+        .p-grid { 
+            display: grid; 
+            grid-template-columns: 1fr 1fr; 
+            gap: 12px; 
+            overflow-y: auto; 
+            padding-bottom: 20px; 
+        }
+        .p-card { 
+            background: #fff; 
+            border: 1px solid #f0f0f0; 
+            padding: 10px; 
+            border-radius: 20px; 
+            text-align: center;
+            transition: all 0.4s cubic-bezier(0.2, 0.8, 0.2, 1);
+            opacity: 0;
+            transform: translateY(30px);
+            animation: cardSlideUp 0.6s ease-out forwards;
+        }
+        .p-card:hover {
+            transform: translateY(-8px) scale(1.02);
+            box-shadow: 0 16px 32px rgba(0,0,0,0.12);
+            border-color: var(--accent);
+        }
+        .p-card img { 
+            width: 100%; 
+            height: 110px; 
+            object-fit: cover; 
+            border-radius: 15px; 
+            margin-bottom: 8px;
+            transition: transform 0.4s ease;
+        }
+        .p-card:hover img { transform: scale(1.08); }
+        .buy-btn { 
+            width: 100%; 
+            background: var(--dark); 
+            color: white; 
+            border: none; 
+            padding: 10px; 
+            border-radius: 10px; 
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        .buy-btn:hover {
+            background: var(--accent);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(255,87,34,0.4);
+        }
+        @keyframes cardSlideUp {
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* --- PAGE 3: ABOUT (Enhanced Animation) --- */
+        #about { background: var(--bg); justify-content: center; text-align: center; }
+        .story-box { 
+            opacity: 0; 
+            transform: translateY(40px); 
+            transition: opacity 1s ease-out 0.3s, transform 1s ease-out 0.3s;
+            max-width: 700px;
+            margin: 0 auto;
+        }
+        .visible .story-box { 
+            opacity: 1; 
+            transform: translateY(0); 
+        }
+        .story-text { 
+            font-family: 'Playfair Display', serif; 
+            font-size: 26px; 
+            line-height: 1.6;
+            position: relative;
+        }
+        .highlight { 
+            border-bottom: 4px solid var(--accent);
+            position: relative;
+            display: inline-block;
+        }
+        .highlight::after {
+            content: '';
+            position: absolute;
+            bottom: -6px;
+            left: 0;
+            width: 0;
+            height: 4px;
+            background: var(--accent);
+            transition: width 0.6s ease;
+        }
+        .story-box:hover .highlight::after {
+            width: 100%;
+        }
+
+        /* --- PAGE 4: CUSTOMERS (Enhanced Slider) --- */
+        #customers { background: #fdfdfd; justify-content: center; align-items: center; text-align: center; }
+        .cust-slider { 
+            width: 100%; 
+            position: relative; 
+            overflow: hidden;
+            border-radius: 25px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+        }
+        .cust-track { 
+            display: flex; 
+            transition: transform 0.6s cubic-bezier(0.2, 0.8, 0.2, 1);
+        }
+        .cust-slide { 
+            min-width: 100%; 
+            padding: 30px 20px;
+            opacity: 0.6;
+            transform: translateX(20px);
+            transition: opacity 0.6s ease, transform 0.6s ease;
+        }
+        .cust-slide.active {
+            opacity: 1;
+            transform: translateX(0);
+        }
+        .cust-slide img { 
+            width: 90px; 
+            height: 90px; 
+            border-radius: 50%; 
+            border: 3px solid var(--accent); 
+            margin-bottom: 15px;
+            transition: transform 0.4s ease;
+        }
+        .cust-slide:hover img { transform: scale(1.1); }
+        .cust-slide p {
+            font-style: italic;
+            font-size: 18px;
+            margin-bottom: 10px;
+            opacity: 0;
+            transform: translateY(10px);
+            transition: opacity 0.4s ease 0.2s, transform 0.4s ease 0.2s;
+        }
+        .cust-slide.active p {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* Slider Controls */
+        button[onclick*="moveSlider"] {
+            background: rgba(255,255,255,0.9);
+            border: 2px solid var(--accent);
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            font-size: 20px;
+            cursor: pointer;
+            margin: 0 10px;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+        }
+        button[onclick*="moveSlider"]:hover {
+            background: var(--accent);
+            color: white;
+            transform: scale(1.1);
+        }
+
+        /* --- ADMIN PANEL (OVERLAY) --- */
+        #admin-panel { 
+            display: none; 
+            position: fixed; 
+            top: 0; 
+            left: 0; 
+            width: 100%; 
+            height: 100%; 
+            background: var(--white); 
+            z-index: 2000; 
+            padding: 40px 20px; 
+            overflow-y: auto;
+            opacity: 0;
+            transform: translateY(20px);
+            transition: opacity 0.4s ease, transform 0.4s ease;
+        }
+        #admin-panel.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* --- CHECKOUT MODAL --- */
+        .modal { 
+            display: none; 
+            position: fixed; 
+            top: 0; 
+            left: 0; 
+            width: 100%; 
+            height: 100%; 
+            background: rgba(0,0,0,0.8); 
+            z-index: 3000; 
+            align-items: center; 
+            justify-content: center;
+            opacity: 0;
+            transition: opacity 0.4s ease;
+        }
+        .modal.visible {
+            opacity: 1;
+        }
+        .modal-content { 
+            background: white; 
+            width: 90%; 
+            max-width: 400px; 
+            padding: 30px; 
+            border-radius: 25px;
+            transform: scale(0.8) translateY(20px);
+            transition: transform 0.4s cubic-bezier(0.2, 0.8, 0.2, 1);
+        }
+        .modal.visible .modal-content {
+            transform: scale(1) translateY(0);
+        }
+        .modal-content input, .modal-content select { 
+            width: 100%; 
+            padding: 12px; 
+            margin: 8px 0; 
+            border: 1px solid #ddd; 
+            border-radius: 10px;
+            transition: border-color 0.3s ease, box-shadow 0.3s ease;
+        }
+        .modal-content input:focus, .modal-content select:focus {
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px rgba(255,87,34,0.1);
+            outline: none;
+        }
+
+        /* DOT INDICATORS */
+        .dots { 
+            position: fixed; 
+            right: 15px; 
+            top: 50%; 
+            transform: translateY(-50%); 
+            z-index: 1000; 
+            display: flex; 
+            flex-direction: column; 
+            gap: 12px; 
+        }
+        .dot { 
+            width: 8px; 
+            height: 8px; 
+            background: rgba(0,0,0,0.2); 
+            border-radius: 50%; 
+            transition: all 0.4s cubic-bezier(0.2, 0.8, 0.2, 1);
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+        }
+        .dot::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            background: var(--accent);
+            border-radius: 50%;
+            transition: width 0.4s ease, height 0.4s ease, transform 0.4s ease;
+            transform: translate(-50%, -50%);
+        }
+        .dot.active {
+            background: var(--accent);
+            height: 24px; 
+            width: 10px;
+            border-radius: 10px;
+        }
+        .dot.active::before {
+            width: 100px;
+            height: 100px;
+        }
+        .dot:hover {
+            transform: scale(1.3);
+        }
+
+        /* Admin inputs animation */
+        #admin-panel input {
+            transform: translateX(-10px);
+            opacity: 0;
+            transition: all 0.4s ease 0.2s;
+        }
+        #admin-panel.visible input {
+            transform: translateX(0);
+            opacity: 1;
+        }
+    </style>
+</head>
+<body>
+
+    <nav>
+        <div class="logo" onclick="scrollToPage(0)"><span>K</span>art&Co</div>
+        <div class="menu-dots" onclick="toggleAdmin()">⋮</div>
+    </nav>
+
+    <div class="dots">
+        <div class="dot active" onclick="scrollToPage(0)"></div>
+        <div class="dot" onclick="scrollToPage(1)"></div>
+        <div class="dot" onclick="scrollToPage(2)"></div>
+        <div class="dot" onclick="scrollToPage(3)"></div>
+    </div>
+
+    <div class="scroll-container" id="container">
+        
+        <section id="home">
+            <span class="badge">Modern Kirana • 2026</span>
+            <h1>Crafted goods for the <span>everyday ritual.</span></h1>
+            <p style="color: #666; margin-bottom: 25px;">Premium essentials delivered with care.</p>
+            <div>
+                <button class="btn-main" onclick="scrollToPage(1)">Visit Shop</button>
+            </div>
+            <div class="hero-card">
+                <img src="https://images.unsplash.com/photo-1588964895597-cfccd6e2dbf9?w=500" alt="Groceries">
+                <p style="margin-top: 10px; font-weight: 500;">Organic Selection</p>
+            </div>
+        </section>
+
+        <section id="store">
+            <input type="text" class="search-bar" placeholder="Search for products..." onkeyup="filterProducts(this.value)">
+            <div class="p-grid" id="product-list">
+            </div>
+        </section>
+
+        <section id="about">
+            <div class="story-box">
+                <span class="badge">Our Story</span>
+                <p class="story-text">
+                    "We believe <span class="highlight">Kirana</span> is the soul of an Indian kitchen. Our ritual is to bring <span class="highlight">purity</span> back to your pantry."
+                </p>
+                <button class="btn-outline" onclick="scrollToPage(1)">Explore Products</button>
+            </div>
+        </section>
+
+        <section id="customers">
+            <span class="badge">Happy Families</span>
+            <div class="cust-slider">
+                <div class="cust-track" id="cust-track">
+                    <div class="cust-slide">
+                        <img src="https://i.pravatar.cc/150?u=12">
+                        <p>"The fastest delivery and best quality Dal I've ever ordered."</p>
+                        <strong style="display:block; margin-top:10px;">- Ramesh K.</strong>
+                    </div>
+                    <div class="cust-slide">
+                        <img src="https://i.pravatar.cc/150?u=15">
+                        <p>"Authentic taste and sustainable packaging. Love it!"</p>
+                        <strong style="display:block; margin-top:10px;">- Priya S.</strong>
+                    </div>
+                </div>
+            </div>
+            <div style="margin-top: 20px;">
+                <button onclick="moveSlider(-1)" style="border:none; background:none; font-size: 20px; cursor:pointer;">←</button>
+                <button onclick="moveSlider(1)" style="border:none; background:none; font-size: 20px; cursor:pointer; margin-left: 20px;">→</button>
+            </div>
+        </section>
+
+    </div>
+
+    <div id="admin-panel">
+        <div style="display:flex; justify-content:space-between; align-items:center;">
+            <h2>Store Manager</h2>
+            <button onclick="toggleAdmin()" style="border:none; background:none; font-size:24px;">&times;</button>
+        </div>
+        <div style="margin-top:20px; background:#f9f9f9; padding:20px; border-radius:15px;">
+            <input type="text" id="adm-n" placeholder="Product Name">
+            <input type="number" id="adm-p" placeholder="Price">
+            <input type="text" id="adm-i" placeholder="Image URL">
+            <button class="btn-main" style="width:100%;" onclick="addNewProduct()">Save Product</button>
+        </div>
+        <div id="admin-inventory" style="margin-top:20px;"></div>
+    </div>
+
+    <div class="modal" id="orderModal">
+        <div class="modal-content">
+            <h3>Place Order</h3>
+            <input type="text" id="cust-name" placeholder="Name">
+            <input type="text" id="cust-addr" placeholder="Full Address">
+            <select id="pay-type" style="width:100%; padding:12px; margin-top:10px; border-radius:10px;" onchange="toggleQR(this.value)">
+                <option value="cod">Cash on Delivery</option>
+                <option value="online">Online Payment</option>
+            </select>
+            <div id="qr-area" style="display:none; text-align:center; padding:15px;">
+                <p>Scan to Pay</p>
+                <img src="qr.png" style="width:140px; border:1px solid #eee;">
+            </div>
+            <button class="btn-main" style="width:100%; margin-top:15px;" onclick="confirmOrder()">Confirm</button>
+            <button class="btn-outline" style="width:100%; border:none;" onclick="closeModal()">Cancel</button>
+        </div>
+    </div>
+
+    <script>
+        // --- BACKEND URL ---
+        const BACKEND_URL = "YOUR_BACKEND_URL_HERE"; // Update with your server.js link
+        // --- DATA ---
+        let items = JSON.parse(localStorage.getItem('k_items')) || [
+            { id: 1, name: "Basmati Rice (5kg)", price: 550, img: "https://images.unsplash.com/photo-1586201375761-83865001e31c?w=300" },
+            { id: 2, name: "Premium Toor Dal (1kg)", price: 180, img: "https://images.unsplash.com/photo-1515942400420-2b98fed1f515?w=300" },
+            { id: 3, name: "Pure Cow Ghee (500ml)", price: 420, img: "https://images.unsplash.com/photo-1589927986089-35812388d1f4?w=300" },
+            { id: 4, name: "Organic Honey", price: 320, img: "https://images.unsplash.com/photo-1587049352846-4a222e784d38?w=300" }
+        ];
+
+        // --- SNAP SCROLL LOGIC ---
+        const container = document.getElementById('container');
+        const dots = document.querySelectorAll('.dot');
+        const sections = document.querySelectorAll('section');
+
+        container.addEventListener('scroll', () => {
+            const index = Math.round(container.scrollTop / window.innerHeight);
+            dots.forEach((d, i) => d.classList.toggle('active', i === index));
+            sections.forEach((s, i) => {
+                s.classList.toggle('visible', i <= index); // Keep past sections visible
+            });
+        });
+
+        function scrollToPage(idx) {
+            container.scrollTo({ top: window.innerHeight * idx, behavior: 'smooth' });
+        }
+         // --- STORE LOGIC ---
+        function renderStore(data = items) {
+            const list = document.getElementById('product-list');
+            list.innerHTML = data.map((p, index) => `
+                <div class="p-card" style="animation-delay: ${index * 0.1}s;">
+                    <img src="${p.img}">
+                    <p style="font-size:13px; font-weight:600; height:32px; overflow:hidden;">${p.name}</p>
+                    <p style="color:var(--accent); font-weight:bold; margin:5px 0;">₹${p.price}</p>
+                    <button class="buy-btn" onclick="openOrder()">Buy</button>
+                </div>
+            `).join('');
+        }
+
+        function filterProducts(val) {
+            const filtered = items.filter(i => i.name.toLowerCase().includes(val.toLowerCase()));
+            renderStore(filtered);
+        }
+
+        // --- ORDER LOGIC ---
+        function openOrder() { 
+            const modal = document.getElementById('orderModal');
+            modal.style.display = 'flex';
+            setTimeout(() => modal.classList.add('visible'), 10);
+        }
+        function closeModal() { 
+            const modal = document.getElementById('orderModal');
+            modal.classList.remove('visible');
+            setTimeout(() => modal.style.display = 'none', 400);
+        }
+        function toggleQR(v) { 
+            document.getElementById('qr-area').style.display = v === 'online' ? 'block' : 'none'; 
+        }
+
+        async function confirmOrder() {
+            const name = document.getElementById('cust-name').value;
+            if(!name) return alert("Enter name!");
+            
+            const orderID = "KCO-" + Math.floor(Math.random()*9999);
+            
+              
+            // Send to Backend
+            if(BACKEND_URL !== "YOUR_BACKEND_URL_HERE") {
+                try {
+                    await fetch(`${BACKEND_URL}/order`, {
+                        method: 'POST',
+                        headers: {'Content-Type': 'application/json'},
+                        body: JSON.stringify({ name, orderID })
+                    });
+                } catch(e) { console.log("Backend offline"); }
+            }
+
+            alert("Order Success! ID: " + orderID);
+            closeModal();
+            scrollToPage(0);
+        }
+            
+        // --- ADMIN LOGIC ---
+        function toggleAdmin() {
+            const p = document.getElementById('admin-panel');
+            if(p.style.display === 'block') {
+                p.classList.remove('visible');
+                setTimeout(() => p.style.display = 'none', 400);
+            } else {
+                p.style.display = 'block';
+                setTimeout(() => p.classList.add('visible'), 10);
+                renderAdmin();
+            }
+        }
+
+        function addNewProduct() {
+            const name = document.getElementById('adm-n').value;
+            const price = document.getElementById('adm-p').value;
+            const img = document.getElementById('adm-i').value || "https://via.placeholder.com/150";
+            if(!name || !price) return alert("Fill fields");
+            items.push({ id: Date.now(), name, price, img });
+            localStorage.setItem('k_items', JSON.stringify(items));
+            renderAdmin(); 
+            renderStore();
+            document.getElementById('adm-n').value = '';
+            document.getElementById('adm-p').value = '';
+            document.getElementById('adm-i').value = '';
+        }
+
+        function deleteItem(id) {
+            items = items.filter(i => i.id !== id);
+            localStorage.setItem('k_items', JSON.stringify(items));
+            renderAdmin(); 
+            renderStore();
+        }
+
+        function renderAdmin() {
+            const inv = document.getElementById('admin-inventory');
+            inv.innerHTML = items.map(i => `
+                <div style="background:#fff; padding:10px; margin-bottom:8px; display:flex; justify-content:space-between; border-radius:10px; border:1px solid #eee; transition: all 0.3s ease;">
+                    <span>${i.name} - ₹${i.price}</span>
+                    <button onclick="deleteItem(${i.id})" style="color:#ff4444; border:none; background:none; font-weight:600; padding:5px 10px; border-radius:5px; transition: background 0.3s;">Delete</button>
+                </div>
+            `).join('');
+        }
+
+      // --- SLIDER LOGIC ---
+        let currentSlide = 0;
+        function moveSlider(dir) {
+            const track = document.getElementById('cust-track');
+            const slides = document.querySelectorAll('.cust-slide');
+            const total = slides.length;
+            
+            slides.forEach(s => s.classList.remove('active'));
+            
+            currentSlide = (currentSlide + dir + total) % total;
+            track.style.transform = `translateX(-${currentSlide * 100}%)`;
+            slides[currentSlide].classList.add('active');
+        }
+
+        // Auto-slide for customers
+        setInterval(() => moveSlider(1), 5000);
+
+        // --- INIT ---
+        renderStore();
+        
+        // Initial active slide
+        document.querySelector('.cust-slide').classList.add('active');
+    </script>
+</body>
+</html>
